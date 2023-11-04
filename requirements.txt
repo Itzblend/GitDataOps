@@ -6,3 +6,4 @@ ruamel.yaml==0.18.5
 ruamel.yaml.clib==0.2.8
 twine==4.0.2
 pre-commit==3.5.0
+click==8.1.7

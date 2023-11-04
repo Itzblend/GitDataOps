@@ -8,3 +8,5 @@ databases:
     username: postgres
     password: PASSword#!123
     database: taxi
+
+database: local-postgres

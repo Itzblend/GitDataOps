@@ -23,4 +23,9 @@ setup(
     ],
     install_requires=required,
     python_requires=">=3.8",  # Specify the minimum Python version required
+    entry_points={
+        "console_scripts": [
+            "gitdataops=git_data_ops.cli:main",
+        ]
+    },
 )

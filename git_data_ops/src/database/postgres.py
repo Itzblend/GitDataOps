@@ -37,7 +37,7 @@ class PostgresConnector(AbstractDatabaseConnector):
             conn.close()
 
     def list_databases(self):
-        with self.cursor as cur:
+        with self.cursor() as cur:
             cur.execute("SELECT datname FROM pg_database;")
             databases = [
                 db[0] for db in cur.fetchall() if not re.match(r"template\d+", db[0])
@@ -51,7 +51,7 @@ class PostgresConnector(AbstractDatabaseConnector):
         if database_name not in databases:
             raise KeyError(f"Database {database_name} not in {self.config.host}")
 
-        separators = ["-", "_", "/"]
+        separators = ["-", "_", "/", ":"]
         matches = []
 
         for database in databases:
