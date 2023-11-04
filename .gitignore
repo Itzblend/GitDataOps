@@ -4,3 +4,8 @@ dumps
 __pycache__
 .vscode
 config/secrets.yml
+*.egg-info/
+dist/
+sdist/
+build/
+git_data_ops
