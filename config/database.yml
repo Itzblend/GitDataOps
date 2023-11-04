@@ -1,0 +1,10 @@
+config_version: 1.0
+
+databases:
+  local-postgres:
+    type: postgresql
+    host: localhost
+    port: 15432
+    username: postgres
+    password: PASSword#!123
+    database: taxi

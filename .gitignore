@@ -1,2 +1,6 @@
 docker/data
 .venv
+dumps
+__pycache__
+.vscode
+config/secrets.yml

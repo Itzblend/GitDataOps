@@ -3,7 +3,7 @@ DOCKER_NAME='ds_gitdataops'
 DOCKER_TAG='0.0.1'
 AZURE_CONTAINER_REGISTRY='dndsregistry.azurecr.io'
 
-lint:
+format:
 	black .
 
 env:
@@ -26,3 +26,7 @@ db-up:
 
 db-down:
 	docker-compose -f docker/docker-compose.yml down
+
+clean-dumps:
+	rm -f dumps/*.sql
+	rm -f dumps/globals/*.sql

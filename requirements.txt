@@ -1,1 +1,6 @@
 pytest==7.4.3
+gitdb==4.0.11
+GitPython==3.1.40
+psycopg2-binary==2.9.9
+ruamel.yaml==0.18.5
+ruamel.yaml.clib==0.2.8
