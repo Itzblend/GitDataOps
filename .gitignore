@@ -8,4 +8,3 @@ config/secrets.yml
 dist/
 sdist/
 build/
-git_data_ops
