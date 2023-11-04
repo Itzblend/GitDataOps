@@ -1,0 +1,14 @@
+version: "3.7"
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: gitdataops-postgres
+    ports:
+      - 15432:5432
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./psql-init/yellow_tripdata_sample.csv:/data/yellow_tripdata_sample.csv:ro
+      - ./psql-init/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    environment:
+      - POSTGRES_PASSWORD=PASSword#!123
