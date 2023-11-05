@@ -1,9 +1,7 @@
 import click
-from git_data_ops.src.core.config import AbstractDatabaseConfig, PostgresConfig
-from git_data_ops.src.database.abstract_database_connector import (
-    AbstractDatabaseConnector,
-)
+from git_data_ops.src.core.config import PostgresConfig
 from git_data_ops.src.database.postgres import PostgresConnector
+from git_data_ops.src.core.config import ConfigManager
 
 
 @click.group()
@@ -14,7 +12,7 @@ def cli():
 @cli.command()
 @click.option("--list-all", is_flag=True, default=False)
 def list_databases(list_all: bool = False):
-    context: AbstractDatabaseConfig = AbstractDatabaseConfig()
+    context = ConfigManager()
     active_database = context.config["database"]
     active_database_type = context.config["databases"][active_database]["type"]
 

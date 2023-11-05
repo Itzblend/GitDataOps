@@ -8,3 +8,4 @@ config/secrets.yml
 dist/
 sdist/
 build/
+local
