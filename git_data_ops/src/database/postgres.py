@@ -2,15 +2,15 @@ import psycopg2
 import subprocess
 import datetime
 from git_data_ops.src.core.config import PostgresConfig
-from git_data_ops.src.database.abstract_database_connector import (
-    AbstractDatabaseConnector,
+from git_data_ops.src.database.abstract_database import (
+    AbstractDatabase,
 )
 import os
 from contextlib import contextmanager
 import re
 
 
-class PostgresConnector(AbstractDatabaseConnector):
+class PostgresConnector(AbstractDatabase):
     def __init__(self, config: PostgresConfig):
         self.config: PostgresConfig = config
 
