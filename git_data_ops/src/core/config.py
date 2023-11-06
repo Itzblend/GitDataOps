@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from ruamel.yaml import YAML
+import os
+from datetime import datetime
 
 yaml = YAML(typ="safe")
 
@@ -21,6 +23,29 @@ class ConfigManager(ABC):
                 return self.databases[database_type](database_identifier)
             raise KeyError(f"Database type {database_type} not in available options")
         raise KeyError(f"Database {database_identifier} not found in config")
+
+    def list_latest_dumps(self, directory: str, n: int = 5):
+        # Get a list of files in the directory
+        files = os.listdir(directory)
+
+        # Create a list of tuples with filenames and their modification timestamps
+        file_timestamps = [
+            (file, mtime_to_datetime(os.path.getmtime(os.path.join(directory, file))))
+            for file in files
+            if os.path.isfile(os.path.join(directory, file))
+        ]
+
+        # Sort the list based on modification timestamps in descending order (latest first)
+        file_timestamps.sort(key=lambda x: x[1], reverse=True)
+
+        # Print or use the 5 latest modified files
+        latest_files = file_timestamps[:n]
+
+        return latest_files
+
+
+def mtime_to_datetime(mtime):
+    return datetime.fromtimestamp(mtime)
 
 
 class PostgresConfig(ConfigManager):

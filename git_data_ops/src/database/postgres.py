@@ -8,6 +8,9 @@ from git_data_ops.src.database.abstract_database import (
 import os
 from contextlib import contextmanager
 import re
+from git_data_ops.src.logger import get_logger
+
+logger = get_logger(os.path.splitext(os.path.basename(__file__))[0])
 
 
 class PostgresConnector(AbstractDatabase):
@@ -79,6 +82,9 @@ class PostgresConnector(AbstractDatabase):
             "dumps", "globals", globals_destination_file
         )
 
+        logger.info(
+            f"Dumping database {self.config.database} to {dump_destination_file}"
+        )
         try:
             process = subprocess.Popen(
                 [
@@ -134,3 +140,30 @@ class PostgresConnector(AbstractDatabase):
                 exit(1)
             finally:
                 del os.environ["PGPASSWORD"]
+
+    def recover_database(self, database: str, dump_filename: str):
+        logger.info(f"Recovering database {database} from {dump_filename}")
+        try:
+            process = subprocess.Popen(
+                [
+                    "psql",
+                    "--dbname=postgresql://{}:{}@{}:{}/{}".format(
+                        self.config.user,
+                        self.config.password,
+                        self.config.host,
+                        self.config.port,
+                        database,
+                    ),
+                    "-f",
+                    dump_filename,
+                ],
+                stdout=subprocess.PIPE,
+            )
+            output = process.communicate()[0]
+            if process.returncode != 0:
+                print("Command failed. Return code : {}".format(process.returncode))
+                exit(1)
+
+        except Exception as e:
+            print(e)
+            exit(1)
