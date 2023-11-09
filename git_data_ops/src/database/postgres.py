@@ -10,7 +10,7 @@ from contextlib import contextmanager
 import re
 from git_data_ops.src.logger import get_logger
 
-logger = get_logger(os.path.splitext(os.path.basename(__file__))[0])
+logger = get_logger(__file__)
 
 
 class PostgresConnector(AbstractDatabase):
@@ -22,21 +22,23 @@ class PostgresConnector(AbstractDatabase):
         print("Connection succesful")
 
     @property
-    def connection(self):
+    def _connection(self):
         conn = psycopg2.connect(self.config._connection_string)
         return conn
 
     @contextmanager
-    def cursor(self) -> psycopg2.extensions.cursor:
+    def cursor(self, autocommit: bool = False) -> psycopg2.extensions.cursor:
+        conn = self._connection
+        conn.autocommit = autocommit
+        cur = conn.cursor()
         try:
-            conn = psycopg2.connect(self.config._connection_string)
-            cursor = conn.cursor()
-            yield cursor
-        except psycopg2.Error as e:
-            print("Error: Could not connect to database.")
-            print(e)
-        finally:
+            yield cur
             conn.commit()
+        except psycopg2.DatabaseError:
+            logger.error("Database operation failed:", exc_info=True, stack_info=True)
+            raise
+        finally:
+            cur.close()
             conn.close()
 
     def list_databases(self):
@@ -142,6 +144,15 @@ class PostgresConnector(AbstractDatabase):
                 del os.environ["PGPASSWORD"]
 
     def recover_database(self, database: str, dump_filename: str):
+
+        existing_databases = self.list_databases()
+        if database not in existing_databases:
+            with self.cursor(autocommit=True) as cur:
+                cur.execute(f'CREATE DATABASE "{database}"')
+        else:
+            logger.error(f"Database {database} already exists. Exiting...")
+            return
+
         logger.info(f"Recovering database {database} from {dump_filename}")
         try:
             process = subprocess.Popen(

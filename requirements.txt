@@ -7,3 +7,5 @@ ruamel.yaml.clib==0.2.8
 twine==4.0.2
 pre-commit==3.5.0
 click==8.1.7
+scipy==1.11.3
+colorama==0.4.6

@@ -1,7 +1,9 @@
 import logging
+import os
 
 
-def get_logger(name, log_level=logging.DEBUG):
+def get_logger(file, log_level=logging.DEBUG):
+    name = os.path.splitext(os.path.basename(file))[0]
     logger = logging.getLogger(name)
 
     # Configure the logger

@@ -5,6 +5,8 @@ from git_data_ops.src.database.postgres import PostgresConnector
 from git_data_ops.src.core.config import ConfigManager
 from git_data_ops.src.core.context import Repository
 from git_data_ops.src.database.database_factory import DatabaseFactory
+from datetime import datetime, timedelta
+from git_data_ops.src.core.util import dates_to_diff, rank_by_date, print_colored_number
 
 
 @click.group()
@@ -71,10 +73,13 @@ def recover_database(dump_dir: str = "dumps", database: str = ""):
 
     context = ConfigManager()
     dumps = context.list_latest_dumps(directory=dump_dir)
+    dumps_date_ranks_dict = rank_by_date([dump[1] for dump in dumps], reverse=True)
 
     print("Recent dumps:")
     for idx, dump in enumerate(dumps):
-        print(f"{idx}. {dump[0]} - {dump[1].isoformat()}")
+        print(
+            f"{idx}. {dump[0]} - {dump[1].isoformat()} - {print_colored_number(dates_to_diff(datetime.now(), dump[1]), dumps_date_ranks_dict[dump[1]])}"
+        )
 
     # Choose dump interactively
     choice_idx = int(input(f"Which dump to recover? [0-{len(dumps) - 1}] "))
@@ -83,8 +88,22 @@ def recover_database(dump_dir: str = "dumps", database: str = ""):
     active_database = context.config["database"]
     db_config: dict = context.get_database_config(active_database)
 
+    repo = Repository()
+    branches = repo.list_branches()
+
+    for idx, branch in enumerate(branches):
+        print(f"{idx}. {branch}")
+
+    # Choose branch interactively
+    branch_choice_idx = int(input(f"Which branch to use? [0-{len(branches) - 1}] "))
+    branch = branches[branch_choice_idx]
+
+    feature_db_name = database + "-" + branch
+
+    print(f"Creating database branch {feature_db_name}")
+
     db_connector = DatabaseFactory.create_database(db_config=db_config)
-    db_connector.recover_database(database=database, dump_filename=dump_filename)
+    db_connector.recover_database(database=feature_db_name, dump_filename=dump_filename)
 
 
 @git.command()
