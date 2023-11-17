@@ -21,7 +21,8 @@ CREATE TABLE taxi_trips (
     improvement_surcharge TEXT,
     total_amount TEXT,
     congestion_surcharge TEXT,
-    airport_fee TEXT
+    airport_fee TEXT,
+    PRIMARY KEY (VendorID, tpep_pickup_datetime, tpep_dropoff_datetime, PULocationID, DOLocationID, total_amount)
 );
 
 COPY taxi_trips FROM '/data/yellow_tripdata_sample.csv' WITH (FORMAT CSV, HEADER TRUE);
