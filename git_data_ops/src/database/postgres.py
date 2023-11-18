@@ -9,7 +9,8 @@ import os
 from contextlib import contextmanager
 import re
 from git_data_ops.src.logger import get_logger
-from typing import Tuple, List
+from typing import Tuple, List, Dict
+
 
 logger = get_logger(__file__)
 
@@ -17,7 +18,7 @@ logger = get_logger(__file__)
 class PostgresConnector(AbstractDatabase):
     def __init__(self, config: PostgresConfig):
         self.config: PostgresConfig = config
-        self.table_instances = {}
+        self.table_instances: Dict[str, PostgresTable] = {}
 
     def test_connection(self):
         conn = psycopg2.connect(self.config._connection_string)

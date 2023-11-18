@@ -4,6 +4,7 @@ dumps
 __pycache__
 .vscode
 config/secrets.yml
+config/state.yml
 *.egg-info/
 dist/
 sdist/

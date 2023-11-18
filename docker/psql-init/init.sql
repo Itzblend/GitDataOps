@@ -26,3 +26,11 @@ CREATE TABLE taxi_trips (
 );
 
 COPY taxi_trips FROM '/data/yellow_tripdata_sample.csv' WITH (FORMAT CSV, HEADER TRUE);
+
+CREATE VIEW taxi_monthly AS (
+    SELECT vendorid,
+           DATE_TRUNC('month', tpep_pickup_datetime::TIMESTAMP) AS month,
+           SUM(total_amount::DOUBLE PRECISION)
+    FROM taxi_trips
+    GROUP BY vendorid, DATE_TRUNC('month', tpep_pickup_datetime::TIMESTAMP)
+);
