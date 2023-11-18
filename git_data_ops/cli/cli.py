@@ -6,7 +6,7 @@ from git_data_ops.src.core.config import ConfigManager
 from git_data_ops.src.core.context import Repository
 from git_data_ops.src.database.database_factory import DatabaseFactory
 from datetime import datetime, timedelta
-from git_data_ops.src.core.util import dates_to_diff, rank_by_date, print_colored_number
+from git_data_ops.src.core.util import dates_to_diff, rank_by_date, init_project
 
 
 @click.group()
@@ -22,6 +22,12 @@ def database():
 @cli.group()
 def git():
     pass
+
+
+@cli.command()
+@click.option("--project-root-dir", default="./")
+def init(project_root_dir: str = "./"):
+    init_project(project_root_dir=project_root_dir)
 
 
 @database.command()
@@ -77,8 +83,10 @@ def recover_database(dump_dir: str = "dumps", database: str = ""):
 
     print("Recent dumps:")
     for idx, dump in enumerate(dumps):
+        filepath = dump[0]
+        timestamp = dump[1]
         print(
-            f"{idx}. {dump[0]} - {dump[1].isoformat()} - {print_colored_number(dates_to_diff(datetime.now(), dump[1]), dumps_date_ranks_dict[dump[1]])}"
+            f"{idx}. {filepath} - {timestamp.isoformat()} - {dates_to_diff(datetime.now(), timestamp)}"
         )
 
     # Choose dump interactively
@@ -111,6 +119,10 @@ def recover_database(dump_dir: str = "dumps", database: str = ""):
 def list_branches(list_all: bool = False):
     repo = Repository()
     branches = repo.list_branches()
+
+    if len(branches) == 0:
+        print(f"{repo.working_dir} has no branches")
+        return
 
     if not list_all:
         branches = branches[:10]

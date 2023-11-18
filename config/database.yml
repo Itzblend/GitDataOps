@@ -1,5 +1,4 @@
 config_version: 1.0
-
 databases:
   local-postgres:
     type: postgresql
@@ -8,5 +7,4 @@ databases:
     username: postgres
     password: PASSword#!123
     database: taxi
-
 database: local-postgres

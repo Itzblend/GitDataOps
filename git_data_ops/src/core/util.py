@@ -1,7 +1,11 @@
 from datetime import datetime, timedelta
 from typing import List
 from scipy.stats import rankdata
-from colorama import Fore
+import os
+from git_data_ops.src.logger import get_logger
+import ruamel.yaml
+
+logger = get_logger(__file__)
 
 
 def dates_to_diff(datetime1: datetime, datetime2: datetime):
@@ -35,20 +39,33 @@ def rank_by_date(dates: List[datetime], reverse: bool = False):  # (rank, idx)
     return {date: rank for (date, rank) in ranked_dates}
 
 
-def print_colored_number(message, number):
-    if number < 1 or number > 5:
-        print(f"Number {number}")
+def init_project(project_root_dir: str = "./"):
+    config_dir = os.path.join(project_root_dir, "config")
+    if "config" in os.listdir():
+        logger.error("Directory 'config' already exists")
         return
 
-    # Calculate the color code based on the number
-    green_code = 255
-    red_code = min(int(255 - (number - 1) * 51), 150)
+    os.makedirs(config_dir, exist_ok=False)
 
-    # Generate the ANSI escape code for the color
-    color = f"\033[38;2;{red_code};{green_code};0m"
+    default_config = {
+        "config_version": 1.0,
+        "databases": {
+            "default_database": {
+                "type": "postgresql",
+                "host": "localhost",
+                "port": "5432",
+                "username": "postgres",
+                "password": "postgres",
+                "database": "postgres",
+            }
+        },
+        "database": "default_database",
+    }
 
-    # Reset the color at the end of the line
-    reset = Fore.RESET
+    write_yaml(os.path.join(config_dir, "database.yml"), default_config)
 
-    # Print the colored number
-    return f"{color}{message}{reset}"
+
+def write_yaml(file_path, data):
+    with open(file_path, "w") as yaml_file:
+        yaml = ruamel.yaml.YAML()
+        yaml.dump(data, yaml_file)
