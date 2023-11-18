@@ -24,7 +24,6 @@ def dates_to_diff(datetime1: datetime, datetime2: datetime):
 
 
 def rank_by_date(dates: List[datetime], reverse: bool = False):  # (rank, idx)
-
     # Convert datetimes to timestamps for ranking
     timestamp_list = [date.timestamp() for date in dates]
 
@@ -69,3 +68,11 @@ def write_yaml(file_path, data):
     with open(file_path, "w") as yaml_file:
         yaml = ruamel.yaml.YAML()
         yaml.dump(data, yaml_file)
+
+
+def filter_dict_by_keys(pair, keys: List[str]) -> bool:
+    key, value = pair
+    if key in keys:
+        return True  # keep pair in the filtered dictionary
+    else:
+        return False  # filter pair out of the dictionary

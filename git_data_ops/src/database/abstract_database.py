@@ -4,7 +4,8 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple, Dict, Any
 from git_data_ops.src.paths import CONFIG_PATH
 from ruamel.yaml import YAML
-from git_data_ops.src.core.util import write_yaml
+from git_data_ops.src.core.util import write_yaml, filter_dict_by_keys
+from io import StringIO
 
 yaml = YAML(typ="safe")
 
@@ -46,3 +47,27 @@ class AbstractDatabase(ABC):
             state_dict[self.config.database][table_identifier] = table_config
         write_yaml(f"{CONFIG_PATH}/state.yml", state_dict)
         print("State file written")
+
+    def create_ddl_script(self, table_identifier: str = None):
+        if table_identifier:
+            table_instances = dict(
+                filter(filter_dict_by_keys, self.table_instances.items())
+            )
+        else:
+            table_instances = self.table_instances
+
+        for _table_identifier, table_instance in table_instances.items():
+            if table_instance.table_type == "BASE TABLE":
+                self.create_table_ddl_script(table_instance)
+
+        print("Done")
+
+    def create_table_ddl_script(self, table_instance):
+        ddl_string = StringIO()
+
+        ddl_string.write(
+            f"CREATE TABLE IF NOT EXISTS {table_instance.table_schema}.{table_instance.table_name} (\n"
+        )
+        for column in table_instance.columns:
+            ddl_string.write(f"{column['column_name']} {column['data_type']},\n")
+        print(ddl_string.getvalue())
