@@ -96,11 +96,14 @@ class PostgresConnector(AbstractDatabase):
     ) -> List[dict]:
         with self.cursor() as cur:
             get_columns_query = f"""
-            SELECT *
-            FROM information_schema.key_column_usage
-            WHERE table_catalog = '{table_catalog}'
-            AND table_schema = '{table_schema}'
-            AND table_name = '{table_name}'
+            SELECT kcu.*,
+                   tc.constraint_type
+            FROM information_schema.key_column_usage kcu
+            JOIN information_schema.table_constraints tc
+            ON kcu.constraint_name = tc.constraint_name
+            WHERE kcu.table_catalog = '{table_catalog}'
+            AND kcu.table_schema = '{table_schema}'
+            AND kcu.table_name = '{table_name}'
         """
             cur.execute(get_columns_query)
             keys_rows = cur.fetchall()

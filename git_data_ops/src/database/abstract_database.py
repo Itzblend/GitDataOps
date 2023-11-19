@@ -49,6 +49,8 @@ class AbstractDatabase(ABC):
         print("State file written")
 
     def create_ddl_script(self, table_identifier: str = None):
+        os.makedirs("config/sql/ddl", exist_ok=True)
+
         if table_identifier:
             table_instances = dict(
                 filter(filter_dict_by_keys, self.table_instances.items())
@@ -58,9 +60,15 @@ class AbstractDatabase(ABC):
 
         for _table_identifier, table_instance in table_instances.items():
             if table_instance.table_type == "BASE TABLE":
-                self.create_table_ddl_script(table_instance)
+                ddl_script = self.create_table_ddl_script(table_instance)
+            else:
+                continue
 
-        print("Done")
+            with open(
+                f"config/sql/ddl/{table_instance.table_schema}.{table_instance.table_name}.sql",
+                "w",
+            ) as ddl_file:
+                ddl_file.write(ddl_script)
 
     def create_table_ddl_script(self, table_instance):
         ddl_string = StringIO()
@@ -69,5 +77,36 @@ class AbstractDatabase(ABC):
             f"CREATE TABLE IF NOT EXISTS {table_instance.table_schema}.{table_instance.table_name} (\n"
         )
         for column in table_instance.columns:
-            ddl_string.write(f"{column['column_name']} {column['data_type']},\n")
-        print(ddl_string.getvalue())
+            ddl_string.write(
+                f"\t{column['column_name']} {column['data_type'].upper()},\n"
+            )
+
+        table_constraint_names = list(
+            set(c["constraint_name"] for c in table_instance.keys)
+        )
+
+        for constraint_name in table_constraint_names:
+            ddl_string.write(
+                self.build_constraint_query_row(constraint_name, table_instance)
+            )
+            ddl_string.write("\n")
+
+        ddl_string.write(")")
+
+        return ddl_string.getvalue()
+
+    def build_constraint_query_row(self, constraint_name: str, table_instance) -> str:
+        constraint_dict_list = [
+            d
+            for d in table_instance.keys
+            if d.get("constraint_name") == constraint_name
+        ]
+        constraint_type = constraint_dict_list[0].get("constraint_type")
+        constraint_name = constraint_dict_list[0].get("constraint_name")
+        columns = [col["column_name"] for col in constraint_dict_list]
+
+        constraint_query_row = (
+            f"CONSTRAINT {constraint_name} {constraint_type} ({', '.join(columns)})"
+        )
+
+        return constraint_query_row
