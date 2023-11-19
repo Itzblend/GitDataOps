@@ -3,7 +3,8 @@ docker/data
 dumps
 __pycache__
 .vscode
-config/secrets.yml
+config/*
+!config/database.yml
 *.egg-info/
 dist/
 sdist/

@@ -16,11 +16,12 @@ class ConfigManager(ABC):
         with open(self.config_file_path, "r", encoding="utf-8") as config_file:
             return yaml.load(config_file)
 
-    def get_database_config(self, database_identifier):
+    def get_database_config(self, database_identifier, branch):
         if database_identifier in self.config["databases"]:
             database_type = self.config["databases"][database_identifier]["type"]
+            branch = self.config["branch"]
             if database_type in self.databases:
-                return self.databases[database_type](database_identifier)
+                return self.databases[database_type](database_identifier, branch)
             raise KeyError(f"Database type {database_type} not in available options")
         raise KeyError(f"Database {database_identifier} not found in config")
 
@@ -49,15 +50,27 @@ def mtime_to_datetime(mtime):
 
 
 class PostgresConfig(ConfigManager):
-    def __init__(self, config_identifier: str):
+    def __init__(self, config_identifier: str, branch: str):
         super().__init__()
-        self.database_config = self.config["databases"][config_identifier]
-        self.type = self.database_config["type"]
-        self.host = self.config["databases"][config_identifier]["host"]
-        self.port = self.config["databases"][config_identifier]["port"]
-        self.user = self.config["databases"][config_identifier]["username"]
-        self.password = self.config["databases"][config_identifier]["password"]
-        self.database = self.config["databases"][config_identifier]["database"]
+        self.database_config = self.config["databases"][config_identifier]["branches"][
+            branch
+        ]
+        self.type = self.config["databases"][config_identifier]["type"]
+        self.host = self.config["databases"][config_identifier]["branches"][branch][
+            "host"
+        ]
+        self.port = self.config["databases"][config_identifier]["branches"][branch][
+            "port"
+        ]
+        self.user = self.config["databases"][config_identifier]["branches"][branch][
+            "username"
+        ]
+        self.password = self.config["databases"][config_identifier]["branches"][branch][
+            "password"
+        ]
+        self.database = self.config["databases"][config_identifier]["branches"][branch][
+            "database"
+        ]
 
     @property
     def _connection_string(self):
