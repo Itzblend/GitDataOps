@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from ruamel.yaml import YAML
 import os
 from datetime import datetime
+from git_data_ops.src.core.util import write_yaml
 
 yaml = YAML(typ="safe")
 
@@ -43,6 +44,19 @@ class ConfigManager(ABC):
         latest_files = file_timestamps[:n]
 
         return latest_files
+
+    def create_branch_database_config(self, branch: str):
+        branch_config = {
+            "host": "",
+            "port": "",
+            "user": "",
+            "password": "",
+            "database": "",
+        }
+        self.config["databases"][self.config["database"]]["branches"][
+            branch
+        ] = branch_config
+        write_yaml(self.config_file_path, self.config)
 
 
 def mtime_to_datetime(mtime):

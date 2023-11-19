@@ -42,6 +42,10 @@ def init(project_root_dir: str = "./"):
 @click.option("-e", "--environment", "environment", default=None)
 @click.pass_context
 def branch(ctx, branch, environment: str = None):
+    context = ConfigManager()
+    context.create_branch_database_config(branch=branch)
+    db_connector = DatabaseFactory.create_database(ctx.obj["db_config"])
+    # db_connector.create_database(branch)
     print(f"Creating branch {branch} into {environment}")
 
 

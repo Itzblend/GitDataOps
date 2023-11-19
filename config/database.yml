@@ -1,14 +1,19 @@
 config_version: 1.0
 databases:
   local-postgres:
-      type: postgresql
-      branches:
-        main:
-          host: localhost
-          port: 15432
-          username: postgres
-          password: PASSword#!123
-          database: taxi
-
+    type: postgresql
+    branches:
+      main:
+        host: localhost
+        port: 15432
+        username: postgres
+        password: PASSword#!123
+        database: taxi
+      develop:
+        host: ''
+        port: ''
+        user: ''
+        password: ''
+        database: ''
 database: local-postgres
 branch: main

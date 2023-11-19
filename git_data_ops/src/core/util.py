@@ -57,11 +57,15 @@ def init_project(project_root_dir: str = "./"):
         "databases": {
             "default_database": {
                 "type": "postgresql",
-                "host": "localhost",
-                "port": "5432",
-                "username": "postgres",
-                "password": "postgres",
-                "database": "postgres",
+                "branches": {
+                    "main": {
+                        "host": "localhost",
+                        "port": "5432",
+                        "username": "postgres",
+                        "password": "postgres",
+                        "database": "postgres",
+                    }
+                },
             }
         },
         "database": "default_database",

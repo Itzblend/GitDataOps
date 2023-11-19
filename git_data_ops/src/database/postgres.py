@@ -132,7 +132,7 @@ class PostgresConnector(AbstractDatabase):
         else:
             return False
 
-    def dump_database(self, globals: bool = True):
+    def dump_database(self, globals: bool = True, schema_only: bool = False):
         self._create_dump_dir_if_not_exists()
 
         dump_destination_file = (
@@ -150,20 +150,24 @@ class PostgresConnector(AbstractDatabase):
         logger.info(
             f"Dumping database {self.config.database} to {dump_destination_file}"
         )
+        command_list = []
+        command_list.append("pg_dump")
+        if schema_only:
+            command_list.append("--schema-only")
+        command_list.append(
+            "--dbname=postgresql://{}:{}@{}:{}/{}".format(
+                self.config.user,
+                self.config.password,
+                self.config.host,
+                self.config.port,
+                self.config.database,
+            )
+        )
+        command_list.append("-f")
+        command_list.append(dump_destination_file)
         try:
             process = subprocess.Popen(
-                [
-                    "pg_dump",
-                    "--dbname=postgresql://{}:{}@{}:{}/{}".format(
-                        self.config.user,
-                        self.config.password,
-                        self.config.host,
-                        self.config.port,
-                        self.config.database,
-                    ),
-                    "-f",
-                    dump_destination_file,
-                ],
+                command_list,
                 stdout=subprocess.PIPE,
             )
             output = process.communicate()[0]
@@ -255,6 +259,12 @@ class PostgresConnector(AbstractDatabase):
             )
 
         return self.table_instances
+
+    def create_database(self, database):
+        existing_databases = self.list_databases()
+        if database not in existing_databases:
+            with self.cursor(autocommit=True) as cur:
+                cur.execute(f'CREATE DATABASE "{database}"')
 
 
 class PostgresTable:
