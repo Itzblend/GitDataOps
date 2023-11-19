@@ -41,6 +41,12 @@ def rank_by_date(dates: List[datetime], reverse: bool = False):  # (rank, idx)
 def init_project(project_root_dir: str = "./"):
     config_dir = os.path.join(project_root_dir, "config")
     if "config" in os.listdir():
+        logger.error(f"Directory {config_dir} already exists")
+
+
+def init_project(project_root_dir: str = "./"):
+    config_dir = os.path.join(project_root_dir, "config")
+    if "config" in os.listdir():
         logger.error("Directory 'config' already exists")
         return
 
